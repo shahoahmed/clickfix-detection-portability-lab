@@ -1,0 +1,18 @@
+rule clickfix_run_dialog_spawns_suspicious_shell {
+  meta:
+    author = "Shaho Ahmed"
+    description = "ClickFix: explorer.exe (Run dialog) spawns PowerShell/cmd/mshta with hidden, encoded, cradle, or CAPTCHA-lure args"
+    mitre_attack_tactic = "Execution"
+    mitre_attack_technique = "T1204.004"
+    severity = "HIGH"
+    priority = "HIGH"
+
+  events:
+    $proc.metadata.event_type = "PROCESS_LAUNCH"
+    re.regex($proc.principal.process.file.full_path, `(?i)\\explorer\.exe$`)
+    re.regex($proc.target.process.file.full_path, `(?i)\\(powershell|pwsh|cmd|mshta)\.exe$`)
+    re.regex($proc.target.process.command_line, `(?i)(-w(indowstyle)?\s+hidden|-enc|iex|iwr|downloadstring|robot|captcha|verification|https?://)`)
+
+  condition:
+    $proc
+}

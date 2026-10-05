@@ -1,0 +1,6 @@
+// Elastic Security custom query rule (KQL). Fields are raw Winlogbeat Sysmon fields
+// (no ECS Sysmon ingest pipeline in this lab). Severity High, risk 73, runs every 5m.
+winlog.event_id:1
+  and winlog.event_data.ParentImage:*explorer.exe
+  and winlog.event_data.Image:(*powershell.exe or *pwsh.exe or *cmd.exe or *mshta.exe)
+  and winlog.event_data.CommandLine:(*hidden* or *-enc* or *iex* or *iwr* or *robot* or *captcha* or *Verification* or *http*)

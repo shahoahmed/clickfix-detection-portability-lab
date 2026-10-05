@@ -1,0 +1,4 @@
+*.backup*
+*.keystore
+.env
+working/

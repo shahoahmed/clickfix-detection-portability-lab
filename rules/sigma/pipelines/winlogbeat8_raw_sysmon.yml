@@ -1,0 +1,24 @@
+# pySigma processing pipeline for Winlogbeat 8.x WITHOUT the Sysmon ECS ingest pipeline.
+# Sysmon fields land as winlog.event_data.<Field>, and the event ID as winlog.event_id.
+name: Winlogbeat 8 raw Sysmon fields (lab)
+priority: 30
+transformations:
+  - id: winlogbeat8_prefix
+    type: field_name_prefix
+    prefix: "winlog.event_data."
+  - id: sysmon_eid1
+    type: add_condition
+    conditions:
+      winlog.event_id: 1
+    rule_conditions:
+      - type: logsource
+        category: process_creation
+        product: windows
+  - id: sysmon_eid13
+    type: add_condition
+    conditions:
+      winlog.event_id: 13
+    rule_conditions:
+      - type: logsource
+        category: registry_set
+        product: windows

@@ -1,0 +1,29 @@
+rule clickfix_runmru_write_then_shell {
+  meta:
+    author = "Shaho Ahmed"
+    description = "ClickFix correlation: explorer.exe-spawned shell and a RunMRU registry write (either order; observed process-first by ~21 ms) on the same host within 1 minute"
+    mitre_attack_tactic = "Execution"
+    mitre_attack_technique = "T1204.004"
+    severity = "CRITICAL"
+    priority = "HIGH"
+
+  events:
+    $reg.metadata.event_type = "REGISTRY_MODIFICATION"
+    re.regex($reg.target.registry.registry_key, `(?i)\\Explorer\\RunMRU`)
+    $reg.principal.hostname = $host
+
+    $proc.metadata.event_type = "PROCESS_LAUNCH"
+    re.regex($proc.principal.process.file.full_path, `(?i)\\explorer\.exe$`)
+    re.regex($proc.target.process.file.full_path, `(?i)\\(powershell|pwsh|cmd|mshta)\.exe$`)
+    $proc.principal.hostname = $host
+
+  match:
+    $host over 1m
+
+  outcome:
+    $risk_score = 90
+    $command_line = array_distinct($proc.target.process.command_line)
+
+  condition:
+    $reg and $proc
+}

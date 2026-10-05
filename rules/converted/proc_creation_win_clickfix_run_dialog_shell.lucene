@@ -1,0 +1,1 @@
+winlog.event_id:1 AND (winlog.event_data.ParentImage:*\\explorer.exe AND (winlog.event_data.Image:(*\\powershell.exe OR *\\pwsh.exe OR *\\cmd.exe OR *\\mshta.exe)) AND (winlog.event_data.CommandLine:(*\ \-w\ hidden* OR *\ \-windowstyle\ hidden* OR *\ \-enc* OR *iex* OR *iwr* OR *DownloadString* OR *robot* OR *captcha* OR *Verification* OR *http*)))

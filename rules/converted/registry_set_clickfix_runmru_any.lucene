@@ -1,0 +1,1 @@
+winlog.event_id:13 AND winlog.event_data.TargetObject:*\\Explorer\\RunMRU\\*

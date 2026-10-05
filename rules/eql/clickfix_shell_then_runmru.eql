@@ -1,0 +1,10 @@
+/* Elastic EQL correlation rule, hand-tuned from the Sigma output.
+   Observed in lab telemetry: explorer.exe creates the shell process ~21 ms BEFORE it writes
+   the RunMRU history value, so the sequence is process -> registry (not registry -> process).
+   Grouped by host.name (Sigma's generic 'Computer' field does not exist in Winlogbeat 8). */
+sequence by host.name with maxspan=1m
+  [any where winlog.event_id : "1" and
+     winlog.event_data.ParentImage : "*\\explorer.exe" and
+     winlog.event_data.Image : ("*\\powershell.exe", "*\\pwsh.exe", "*\\cmd.exe", "*\\mshta.exe")]
+  [any where winlog.event_id : "13" and
+     winlog.event_data.TargetObject : "*\\Explorer\\RunMRU*"]

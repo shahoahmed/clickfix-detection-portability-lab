@@ -1,0 +1,1 @@
+any where winlog.event_id:1 and (winlog.event_data.ParentImage:"*\\explorer.exe" and (winlog.event_data.Image like~ ("*\\powershell.exe", "*\\pwsh.exe", "*\\cmd.exe", "*\\mshta.exe")) and (winlog.event_data.CommandLine like~ ("* -w hidden*", "* -windowstyle hidden*", "* -enc*", "*iex*", "*iwr*", "*DownloadString*", "*robot*", "*captcha*", "*Verification*", "*http*")))

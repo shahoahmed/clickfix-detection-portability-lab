@@ -1,0 +1,48 @@
+title: ClickFix - Run Dialog Spawns Hidden or Suspicious Shell
+name: proc_creation_win_clickfix_run_dialog_shell
+id: 7b1f6c2e-4d1a-4c8e-9a51-3f2c0e8d9b14
+status: experimental
+description: |
+  Detects ClickFix / fake CAPTCHA initial access, where a user is tricked into pasting a
+  command into the Win+R Run dialog. The Run dialog is hosted by explorer.exe, so a shell
+  spawned directly by explorer.exe with hidden-window, encoded, download-cradle, or
+  CAPTCHA-lure arguments is a strong signal. Unlike RunMRU value-content rules, this does
+  not require a URL in the pasted command and still fires on repeat pastes, which only
+  update the MRUList ordering value.
+references:
+  - https://attack.mitre.org/techniques/T1204/004/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_set/registry_set_potential_clickfix_execution.yml
+author: Shaho Ahmed
+date: 2026-10-05
+tags:
+  - attack.execution
+  - attack.t1204.004
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith: '\explorer.exe'
+  selection_child:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+      - '\cmd.exe'
+      - '\mshta.exe'
+  selection_args:
+    CommandLine|contains:
+      - ' -w hidden'
+      - ' -windowstyle hidden'
+      - ' -enc'
+      - 'iex'
+      - 'iwr'
+      - 'DownloadString'
+      - 'robot'
+      - 'captcha'
+      - 'Verification'
+      - 'http'
+  condition: all of selection_*
+falsepositives:
+  - Administrators launching scripted PowerShell from the Run dialog (tune by user or command allowlist)
+level: high

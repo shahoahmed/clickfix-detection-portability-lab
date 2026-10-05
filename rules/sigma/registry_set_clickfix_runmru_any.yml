@@ -1,0 +1,22 @@
+title: ClickFix - Run Dialog History Write (RunMRU)
+name: registry_set_clickfix_runmru_any
+id: 2c9e8a71-5b3f-4e60-8d2a-6a7f1c4b9e03
+status: experimental
+description: |
+  Any write to the RunMRU key. Low fidelity alone (normal Run dialog use), intended as the
+  first stage of the correlation rule below. Catches repeat pastes, which only update MRUList.
+author: Shaho Ahmed
+date: 2026-10-05
+tags:
+  - attack.execution
+  - attack.t1204.004
+logsource:
+  category: registry_set
+  product: windows
+detection:
+  selection:
+    TargetObject|contains: '\Explorer\RunMRU\'
+  condition: selection
+falsepositives:
+  - Normal Run dialog usage
+level: informational
