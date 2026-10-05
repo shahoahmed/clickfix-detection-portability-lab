@@ -2,6 +2,7 @@
 
 **One attack, three rule formats, two SIEMs.** I simulated a current ClickFix (fake CAPTCHA) initial-access chain in my Active Directory lab, detected it in Elastic Security, and translated the same detection into Sigma and Google SecOps YARA-L. Along the way I found silent failures in my own SIEM pipeline and two gaps in the public SigmaHQ ClickFix rule.
 
+The project is also written up as a control assessment: each finding is mapped to NIST 800-53 controls, rated, and tracked in a Plan of Action and Milestones (POA&M), the same way findings are handled under RMF and FedRAMP continuous monitoring.
 ## Contents
 - [Why this matters (real world)](#why-this-matters-real-world)
 - [Attack flow](#attack-flow)
@@ -18,6 +19,7 @@
 - [Reproduce it](#reproduce-it)
 - [MITRE ATT&CK mapping](#mitre-attck-mapping)
 - [NIST 800-53 control mapping](#nist-800-53-control-mapping)
+- [Control assessment and POA&M](#control-assessment-and-poam)
 - [Repository structure](#repository-structure)
 - [Next steps](#next-steps)
 
@@ -171,6 +173,30 @@ Lesson: alert on silence. A "no events from host in 30 minutes" rule would have 
 | IA-5 | Authenticator Management | Winlogbeat credential moved from plain text into the keystore |
 | CA-7 | Continuous Monitoring | Found and fixed a silent three-month log shipping outage |
 
+## Control assessment and POA&M
+Assessment of the lab's monitoring controls before and after this project. Status reflects the lab at time of publishing.
+
+| Control | Assessment question | Finding | Result |
+|---------|--------------------|---------|--------|
+| AU-12 | Are security-relevant events generated for this technique? | RunMRU writes were not logged by the Sysmon config | Other than satisfied, remediated |
+| SI-4 | Is the system monitored for this attack? | No detection existed for ClickFix | Other than satisfied, remediated |
+| CA-7 | Would a monitoring outage be noticed? | Log shipping failed for three months with no alert | Other than satisfied, partially remediated |
+| IA-5 | Are authenticators protected? | Elastic credential stored in plain text in `winlogbeat.yml` | Other than satisfied, remediated |
+| CM-6 | Are configuration changes controlled? | Sysmon config changed with backup and validated reload | Satisfied |
+
+**POA&M** (also in [poam/poam.csv](poam/poam.csv))
+
+| ID | Weakness | Control | Severity | Remediation | Status | Completed / Target |
+|----|----------|---------|----------|-------------|--------|--------------------|
+| POAM-01 | RunMRU registry writes not logged | AU-12 | Moderate | Added Sysmon RegistryEvent rule for `\Explorer\RunMRU`, reloaded and verified events | Completed | 2026-10-04 |
+| POAM-02 | No detection for ClickFix (T1204.004) | SI-4 | High | Built and enabled Elastic rule; 3 of 3 test runs alerted | Completed | 2026-10-05 |
+| POAM-03 | Plain-text Elastic credential in Winlogbeat config | IA-5 | High | Moved secret to Winlogbeat keystore (`${ES_PWD}`) | Completed | 2026-10-05 |
+| POAM-04 | Silent three-month log shipping outage | CA-7 | High | Credential fixed and shipping restored; "no data from host" alert still to build | Open | 2026-11-01 |
+| POAM-05 | SIEM license lapse stopped Kibana | CA-7 | Moderate | Moved cluster to Basic license | Completed | 2026-10-05 |
+| POAM-06 | Detection rules starved by 1,834 enabled prebuilt rules on an undersized VM | SI-4 | Moderate | Disabled unused prebuilt rules, raised VM to 8 GB / 4 vCPU | Completed | 2026-10-05 |
+| POAM-07 | Windows Terminal ClickFix variant not covered | SI-4 | Moderate | Build rule for shells spawned by Windows Terminal with lure markers | Open | 2026-11-15 |
+| POAM-08 | Elastic superuser password exposed in old notes | IA-5 | Moderate | Rotate password and update keystore | Open | 2026-10-15 |
+
 ## Repository structure
 ```
 rules/
@@ -180,6 +206,7 @@ rules/
   eql/          Hand-tuned EQL correlation rule
   yara-l/       Google SecOps single-event and multi-event rules
 simulation/     Safe ClickFix simulation script
+poam/           Plan of Action and Milestones (CSV)
 screenshots/    Redacted evidence
 ```
 

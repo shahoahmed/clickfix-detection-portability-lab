@@ -1,0 +1,9 @@
+ID,Weakness,Control,Severity,Remediation,Status,Completed or Target
+POAM-01,RunMRU registry writes not logged,AU-12,Moderate,"Added Sysmon RegistryEvent rule for \Explorer\RunMRU, reloaded and verified events",Completed,2026-10-04
+POAM-02,No detection for ClickFix (T1204.004),SI-4,High,"Built and enabled Elastic rule; 3 of 3 test runs alerted",Completed,2026-10-05
+POAM-03,Plain-text Elastic credential in Winlogbeat config,IA-5,High,Moved secret to Winlogbeat keystore,Completed,2026-10-05
+POAM-04,Silent three-month log shipping outage,CA-7,High,"Credential fixed and shipping restored; no-data-from-host alert still to build",Open,2026-11-01
+POAM-05,SIEM license lapse stopped Kibana,CA-7,Moderate,Moved cluster to Basic license,Completed,2026-10-05
+POAM-06,Detection rules starved by 1834 enabled prebuilt rules on an undersized VM,SI-4,Moderate,"Disabled unused prebuilt rules, raised VM to 8 GB / 4 vCPU",Completed,2026-10-05
+POAM-07,Windows Terminal ClickFix variant not covered,SI-4,Moderate,Build rule for shells spawned by Windows Terminal with lure markers,Open,2026-11-15
+POAM-08,Elastic superuser password exposed in old notes,IA-5,Moderate,Rotate password and update keystore,Open,2026-10-15
